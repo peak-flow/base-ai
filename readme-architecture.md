@@ -1,0 +1,103 @@
+# Application Architecture
+
+This document outlines the architecture of the personal assistant and project management application.
+
+## System Overview
+
+The application is designed as a personal assistant and coach to help users with ADHD stay on task and complete projects. It integrates with a local LLM for conversational assistance and provides project management, task tracking, and diary functionality.
+
+## Tech Stack
+
+### Backend
+- **Framework**: Laravel 10+
+- **Database**: 
+  - PostgreSQL for relational data
+  - pgvector extension for vector embeddings (RAG)
+- **LLM Integration**: HTTP client to local LLM API (http://192.168.5.119:1234)
+- **Authentication**: Laravel Breeze/Fortify
+
+### Frontend
+- **Primary**: Blade templates
+- **Interactive Components**: 
+  - Alpine.js for reactive UI elements
+  - Livewire for complex dynamic interfaces (chat, model comparison)
+- **Styling**: Tailwind CSS
+
+## Component Architecture
+
+### Core Components
+
+1. **Authentication System**
+   - User registration, login, and profile management
+   - Role-based access control
+
+2. **Project Management Module**
+   - Project CRUD operations
+   - Status and priority management
+   - Progress tracking
+
+3. **Task Management Module**
+   - Task CRUD operations
+   - Task assignment to projects (optional)
+   - Status, priority, and deadline management
+
+4. **Personal Diary Module**
+   - Entry creation and management
+   - Mood tracking
+   - Search functionality
+
+5. **Chat Assistant Module**
+   - Conversation management
+   - Integration with local LLM
+   - Context-aware responses using RAG
+   - Accountability features
+
+6. **Model Comparison Module**
+   - Testing interface for different LLM models
+   - Performance metrics and comparison
+   - Response storage and management
+
+7. **Chat Embeddings Module**
+   - Embedding generation and storage for chat messages only
+   - Retrieval for context enhancement in conversations
+   - Integration with PostgreSQL using pgvector
+
+## Data Flow
+
+1. **User Interaction**
+   - User interacts with the application through the web interface
+   - Authentication system validates user access
+
+2. **Data Management**
+   - CRUD operations for projects, tasks, and diary entries
+   - Data stored in PostgreSQL database
+
+3. **LLM Integration**
+   - User messages sent to local LLM API
+   - Relevant context from vector database added to prompts
+   - Responses processed and displayed to user
+
+4. **RAG Implementation**
+   - Chat messages converted to embeddings
+   - Stored in vector database using pgvector
+   - Retrieved based on semantic similarity to enhance conversation context
+
+5. **Model Comparison**
+   - User prompts sent to multiple LLM models
+   - Responses collected and displayed for comparison
+   - Performance metrics tracked and stored
+
+## Security Considerations
+
+- User authentication and authorization
+- Secure API communication with local LLM
+- Data encryption for sensitive information
+- Input validation and sanitization
+- CSRF protection
+
+## Scalability Considerations
+
+- Queue system for handling longer processing tasks
+- Efficient vector search implementation
+- Database indexing for performance
+- Caching strategies for frequently accessed data
