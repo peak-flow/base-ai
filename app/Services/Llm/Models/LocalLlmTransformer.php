@@ -58,10 +58,10 @@ class LocalLlmTransformer implements LlmTransformerInterface
                     'content' => $context['system_message']
                 ];
             } else {
-                // Default system message
+                // Default system message from jana.php config
                 $messages[] = [
                     'role' => 'system',
-                    'content' => 'You are Jana, a helpful personal assistant. Be concise, friendly, and provide accurate information.'
+                    'content' => config('jana.llm.system_message', 'You are Jana, a helpful personal assistant. Be concise, friendly, and provide accurate information.')
                 ];
             }
             
@@ -83,8 +83,8 @@ class LocalLlmTransformer implements LlmTransformerInterface
             // Prepare the request data
             $data = [
                 'messages' => $messages,
-                'max_tokens' => 500,
-                'temperature' => 0.7,
+                'max_tokens' => (int) config('jana.llm.local.max_tokens', 500),
+                'temperature' => (float) config('jana.llm.local.temperature', 0.7),
                 // Add any other parameters your LLM API expects
             ];
             
@@ -96,10 +96,11 @@ class LocalLlmTransformer implements LlmTransformerInterface
             }
             
             // Log the request using the dedicated logger
-            $this->logger->logRequest('/v1/chat/completions', $data);
+            $endpoint = config('jana.llm.local.endpoint', '/v1/chat/completions');
+            $this->logger->logRequest($endpoint, $data);
             
             // Send request to the LLM API using chat completions endpoint
-            $response = $this->client->sendRequest('/v1/chat/completions', $data);
+            $response = $this->client->sendRequest($endpoint, $data);
             
             // Log the response using the dedicated logger
             $this->logger->logResponse($response, $conversationId);
@@ -124,6 +125,6 @@ class LocalLlmTransformer implements LlmTransformerInterface
      */
     public function getName(): string
     {
-        return 'Local LLM';
+        return 'local';
     }
 }

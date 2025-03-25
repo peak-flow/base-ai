@@ -49,6 +49,12 @@ This document tracks the implementation steps and changes made to the applicatio
   - Implemented `LlmLogger` service using dependency injection
   - Added request and response logging with content truncation for readability
   - Included conversation IDs for tracking related messages
+- Added support for multiple LLM providers:
+  - Created `OpenAiTransformer` for integration with OpenAI API
+  - Updated `LlmClient` to support custom headers for API authentication
+  - Modified `LlmServiceProvider` to dynamically select the appropriate transformer
+  - Added configuration options in `services.php` and `.env.example`
+  - Implemented provider switching via the `LLM_PROVIDER` environment variable
 
 ## Next Steps
 - Set up PostgreSQL with pgvector extension

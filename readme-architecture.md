@@ -13,7 +13,10 @@ The application is designed as a personal assistant and coach to help users with
 - **Database**: 
   - PostgreSQL for relational data
   - pgvector extension for vector embeddings (RAG)
-- **LLM Integration**: HTTP client to local LLM API (http://192.168.5.119:1234)
+- **LLM Integration**: 
+  - Pluggable architecture supporting multiple LLM providers
+  - Local LLM API (http://192.168.5.119:1234)
+  - OpenAI API integration
 - **Authentication**: Laravel Breeze/Fortify
 
 ### Frontend
@@ -134,6 +137,64 @@ The application is designed as a personal assistant and coach to help users with
    12. User is redirected back to chat view with updated messages
    ```
    
+### Multi-Provider LLM Architecture
+
+The application implements a pluggable architecture for LLM integration, allowing easy switching between different LLM providers. This design follows the strategy pattern, where different LLM implementations can be swapped without changing the client code.
+
+**Components:**
+
+1. **LlmTransformerInterface**
+   - Interface that all LLM implementations must implement
+   - Defines `sendMessage()` and `getName()` methods
+
+2. **LocalLlmTransformer**
+   - Implementation for local LLM API
+   - Communicates with a self-hosted LLM at http://192.168.5.119:1234
+
+3. **OpenAiTransformer**
+   - Implementation for OpenAI API
+   - Handles authentication and communication with OpenAI's chat completions endpoint
+
+4. **LlmClient**
+   - Generic HTTP client for LLM API communication
+   - Supports custom headers for API authentication
+   - Handles request/response formatting
+
+5. **LlmServiceProvider**
+   - Dynamically selects the appropriate transformer based on configuration
+   - Binds the selected implementation to the interface in the service container
+
+**Configuration:**
+
+The LLM provider can be switched by changing the `LLM_PROVIDER` environment variable:
+
+```
+# Use local LLM
+LLM_PROVIDER=local
+
+# Use OpenAI
+LLM_PROVIDER=openai
+```
+
+**Provider-Specific Settings:**
+
+```php
+// Local LLM settings
+'llm' => [
+    'base_url' => env('LLM_BASE_URL', 'http://192.168.5.119:1234'),
+    'provider' => env('LLM_PROVIDER', 'local'),
+],
+
+// OpenAI settings
+'openai' => [
+    'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com'),
+    'api_key' => env('OPENAI_API_KEY'),
+    'model' => env('OPENAI_MODEL', 'gpt-3.5-turbo'),
+    'max_tokens' => env('OPENAI_MAX_TOKENS', 500),
+    'temperature' => env('OPENAI_TEMPERATURE', 0.7),
+],
+```
+
 ### LLM Logging Architecture
 
 The application includes a dedicated logging system for LLM interactions to track requests and responses. This will later be extended to store in a vector database for embeddings.

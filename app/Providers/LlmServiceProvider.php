@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use App\Services\Llm\LlmClient;
 use App\Services\Llm\Models\LlmTransformerInterface;
 use App\Services\Llm\Models\LocalLlmTransformer;
+use App\Services\Llm\Models\OpenAiTransformer;
 
 class LlmServiceProvider extends ServiceProvider
 {
@@ -14,11 +15,27 @@ class LlmServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Register the appropriate LLM client based on the provider setting
         $this->app->singleton(LlmClient::class, function ($app) {
-            return new LlmClient(config('services.llm.base_url'));
+            $provider = config('jana.llm.provider', 'local');
+            
+            if ($provider === 'openai') {
+                return new LlmClient(config('jana.llm.openai.base_url'));
+            }
+            
+            return new LlmClient(config('jana.llm.local.base_url'));
         });
 
-        $this->app->bind(LlmTransformerInterface::class, LocalLlmTransformer::class);
+        // Bind the appropriate transformer based on the provider setting
+        $this->app->bind(LlmTransformerInterface::class, function ($app) {
+            $provider = config('jana.llm.provider', 'local');
+            
+            if ($provider === 'openai') {
+                return $app->make(OpenAiTransformer::class);
+            }
+            
+            return $app->make(LocalLlmTransformer::class);
+        });
     }
 
     /**

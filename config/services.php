@@ -33,6 +33,15 @@ return [
 
     'llm' => [
         'base_url' => env('LLM_BASE_URL', 'http://192.168.5.119:1234'),
+        'provider' => env('LLM_PROVIDER', 'local'), // 'local' or 'openai'
+    ],
+    
+    'openai' => [
+        'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com'),
+        'api_key' => env('OPENAI_API_KEY'),
+        'model' => env('OPENAI_MODEL', 'gpt-3.5-turbo'),
+        'max_tokens' => env('OPENAI_MAX_TOKENS', 500),
+        'temperature' => env('OPENAI_TEMPERATURE', 0.7),
     ],
 
 ];
