@@ -38,25 +38,52 @@ class LocalLlmTransformer implements LlmTransformerInterface
     public function sendMessage(string $message, array $context = []): string
     {
         try {
-            // Format the request data according to your local LLM API requirements
+            // Format the request data for chat completions
+            $messages = [];
+            
+            // Add system message if provided in context
+            if (!empty($context['system_message'])) {
+                $messages[] = [
+                    'role' => 'system',
+                    'content' => $context['system_message']
+                ];
+            } else {
+                // Default system message
+                $messages[] = [
+                    'role' => 'system',
+                    'content' => 'You are Jana, a helpful personal assistant. Be concise, friendly, and provide accurate information.'
+                ];
+            }
+            
+            // Add chat history if provided in context
+            if (!empty($context['history']) && is_array($context['history'])) {
+                foreach ($context['history'] as $historyMessage) {
+                    if (isset($historyMessage['role']) && isset($historyMessage['content'])) {
+                        $messages[] = $historyMessage;
+                    }
+                }
+            }
+            
+            // Add the current user message
+            $messages[] = [
+                'role' => 'user',
+                'content' => $message
+            ];
+            
+            // Prepare the request data
             $data = [
-                'prompt' => $message,
+                'messages' => $messages,
                 'max_tokens' => 500,
                 'temperature' => 0.7,
                 // Add any other parameters your LLM API expects
             ];
             
-            // Add context if provided
-            if (!empty($context)) {
-                $data['context'] = $context;
-            }
-            
-            // Send request to the LLM API
-            $response = $this->client->sendRequest('/v1/completions', $data);
+            // Send request to the LLM API using chat completions endpoint
+            $response = $this->client->sendRequest('/v1/chat/completions', $data);
             
             // Extract the response text from the API response
-            // This will need to be adjusted based on your LLM API's response format
-            return $response['choices'][0]['text'] ?? 'No response from LLM';
+            // This format is typical for chat completion APIs
+            return $response['choices'][0]['message']['content'] ?? 'No response from LLM';
             
         } catch (\Exception $e) {
             // Log the error

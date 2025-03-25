@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\Llm\ChatService;
+use Illuminate\Support\Facades\Log;
 
 class ChatController extends Controller
 {
@@ -68,6 +69,9 @@ class ChatController extends Controller
                 'timestamp' => now()->toIso8601String(),
             ];
         } catch (\Exception $e) {
+            // Log the error
+            Log::error('Chat Error: ' . $e->getMessage());
+            
             // Add error message
             $messages[] = [
                 'role' => 'assistant',

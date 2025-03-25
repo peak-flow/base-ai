@@ -31,6 +31,18 @@ class ChatService
      */
     public function sendMessage(string $message, array $context = []): string
     {
+        // Get chat history from session if not provided in context
+        if (empty($context['history'])) {
+            $messages = session('chat_messages', []);
+            // Only include messages that have both role and content
+            $history = array_filter($messages, function($msg) {
+                return isset($msg['role']) && isset($msg['content']);
+            });
+            
+            // Add history to context
+            $context['history'] = $history;
+        }
+        
         return $this->transformer->sendMessage($message, $context);
     }
 }
