@@ -29,15 +29,26 @@ This document tracks the implementation steps and changes made to the applicatio
 
 ## Updates (March 25, 2025)
 - Implemented basic chat interface with standard form submissions
+- Integrated with local LLM API using session-based message storage
+- Fixed Tailwind CSS configuration with @tailwindcss/vite plugin
+- Enhanced chat functionality to use chat completions API format
+- Added support for system messages and chat history context
+- Improved error handling and logging in chat components
 - Created LLM service architecture with the following components:
   - `LlmClient`: Handles HTTP communication with the local LLM API
   - `LlmTransformerInterface`: Interface for different LLM implementations
   - `LocalLlmTransformer`: Implementation for the local LLM
   - `ChatService`: Service for handling chat message processing
   - `LlmServiceProvider`: Service provider for binding LLM services
+  - `LlmLogger`: Service for logging LLM requests and responses
 - Added configuration for LLM services in `config/services.php`
 - Simplified chat interface to use standard form submissions instead of AJAX
 - Implemented session-based message storage for chat history
+- Added dedicated logging for LLM interactions with the following features:
+  - Created a dedicated 'llm' log channel in `config/logging.php`
+  - Implemented `LlmLogger` service using dependency injection
+  - Added request and response logging with content truncation for readability
+  - Included conversation IDs for tracking related messages
 
 ## Next Steps
 - Set up PostgreSQL with pgvector extension

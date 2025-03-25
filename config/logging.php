@@ -99,10 +99,14 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'handler' => StreamHandler::class,
             'formatter' => env('LOG_STDERR_FORMATTER'),
-            'with' => [
-                'stream' => 'php://stderr',
-            ],
-            'processors' => [PsrLogMessageProcessor::class],
+        ],
+        
+        'llm' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/llm.log'),
+            'level' => 'info',
+            'days' => 30,
+            'replace_placeholders' => true,
         ],
 
         'syslog' => [

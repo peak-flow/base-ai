@@ -3,6 +3,7 @@
 namespace App\Services\Llm\Models;
 
 use App\Services\Llm\LlmClient;
+use App\Services\Llm\LlmLogger;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -18,14 +19,23 @@ class LocalLlmTransformer implements LlmTransformerInterface
     protected $client;
     
     /**
+     * The LLM logger instance.
+     *
+     * @var LlmLogger
+     */
+    protected $logger;
+    
+    /**
      * Create a new local LLM transformer instance.
      *
      * @param LlmClient $client
+     * @param LlmLogger $logger
      * @return void
      */
-    public function __construct(LlmClient $client)
+    public function __construct(LlmClient $client, LlmLogger $logger)
     {
         $this->client = $client;
+        $this->logger = $logger;
     }
     
     /**
@@ -78,8 +88,21 @@ class LocalLlmTransformer implements LlmTransformerInterface
                 // Add any other parameters your LLM API expects
             ];
             
+            // Generate a conversation ID if not provided in context
+            $conversationId = $context['conversation_id'] ?? null;
+            if (!$conversationId) {
+                $conversationId = (string) \Illuminate\Support\Str::uuid();
+                $data['conversation_id'] = $conversationId;
+            }
+            
+            // Log the request using the dedicated logger
+            $this->logger->logRequest('/v1/chat/completions', $data);
+            
             // Send request to the LLM API using chat completions endpoint
             $response = $this->client->sendRequest('/v1/chat/completions', $data);
+            
+            // Log the response using the dedicated logger
+            $this->logger->logResponse($response, $conversationId);
             
             // Extract the response text from the API response
             // This format is typical for chat completion APIs

@@ -125,12 +125,76 @@ The application is designed as a personal assistant and coach to help users with
    5. ChatService adds chat history from session to context
    6. ChatService calls LocalLlmTransformer->sendMessage()
    7. LocalLlmTransformer formats request with messages array
-   8. LocalLlmTransformer calls LlmClient->sendRequest()
-   9. LlmClient makes HTTP POST request to LLM API
-   10. Response is processed back through the chain
-   11. ChatController stores the new message in session
+   8. LocalLlmTransformer uses LlmLogger to log the request
+   9. LocalLlmTransformer calls LlmClient->sendRequest()
+   10. LlmClient makes HTTP POST request to LLM API
+   11. LocalLlmTransformer uses LlmLogger to log the response
+   12. Response is processed back through the chain
+   13. ChatController stores the new message in session
    12. User is redirected back to chat view with updated messages
    ```
+   
+### LLM Logging Architecture
+
+The application includes a dedicated logging system for LLM interactions to track requests and responses. This will later be extended to store in a vector database for embeddings.
+
+**Components:**
+
+1. **LlmLogger Service**
+   - Handles logging of LLM requests and responses
+   - Uses Laravel's logging system with a dedicated 'llm' channel
+   - Sanitizes and truncates long content for readability
+   - Tracks conversation IDs to associate related messages
+
+**Log Format:**
+
+```
+// Request Log
+{
+    "conversation_id": "550e8400-e29b-41d4-a716-446655440000",
+    "endpoint": "/v1/chat/completions",
+    "data": {
+        "messages": [
+            {"role": "system", "content": "You are Jana, a helpful assistant... [truncated]"},
+            {"role": "user", "content": "What is the weather today?"}
+        ],
+        "max_tokens": 500,
+        "temperature": 0.7
+    },
+    "timestamp": "2025-03-25T02:30:00-04:00"
+}
+
+// Response Log
+{
+    "conversation_id": "550e8400-e29b-41d4-a716-446655440000",
+    "response": {
+        "id": "chatcmpl-123",
+        "choices": [
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": "I don't have access to real-time weather data... [truncated]"
+                }
+            }
+        ]
+    },
+    "timestamp": "2025-03-25T02:30:01-04:00"
+}
+```
+
+**Configuration:**
+
+The logging system uses a dedicated daily log channel configured in `config/logging.php`:
+
+```php
+'llm' => [
+    'driver' => 'daily',
+    'path' => storage_path('logs/llm.log'),
+    'level' => 'info',
+    'days' => 30,
+    'replace_placeholders' => true,
+],
+```
    
    **Example Response Format:**
    ```json
