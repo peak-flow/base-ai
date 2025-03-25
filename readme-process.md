@@ -27,10 +27,22 @@ This document tracks the implementation steps and changes made to the applicatio
 - Created basic dashboard layout with Tailwind CSS
 - Set up project structure and routing
 
+## Updates (March 25, 2025)
+- Implemented basic chat interface with standard form submissions
+- Created LLM service architecture with the following components:
+  - `LlmClient`: Handles HTTP communication with the local LLM API
+  - `LlmTransformerInterface`: Interface for different LLM implementations
+  - `LocalLlmTransformer`: Implementation for the local LLM
+  - `ChatService`: Service for handling chat message processing
+  - `LlmServiceProvider`: Service provider for binding LLM services
+- Added configuration for LLM services in `config/services.php`
+- Simplified chat interface to use standard form submissions instead of AJAX
+- Implemented session-based message storage for chat history
+
 ## Next Steps
-- Implement chat interface to connect with local LLM (http://192.168.5.119:1234)
 - Set up PostgreSQL with pgvector extension
 - Create database migrations for core entities
 - Implement basic project management functionality
 - Implement task management functionality
 - Add authentication when needed
+- Consider adding streaming responses from the LLM in the future

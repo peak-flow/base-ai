@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'llm' => [
+        'base_url' => env('LLM_BASE_URL', 'http://192.168.5.119:1234'),
+    ],
+
 ];

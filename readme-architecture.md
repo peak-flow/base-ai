@@ -47,10 +47,16 @@ The application is designed as a personal assistant and coach to help users with
    - Search functionality
 
 5. **Chat Assistant Module**
-   - Conversation management
-   - Integration with local LLM
-   - Context-aware responses using RAG
-   - Accountability features
+   - Conversation management using session storage
+   - Integration with local LLM via HTTP client
+   - Standard form submissions for simplicity and reliability
+   - Service-oriented architecture with the following components:
+     - `LlmClient`: Handles HTTP communication with the local LLM API
+     - `LlmTransformerInterface`: Interface for different LLM implementations
+     - `LocalLlmTransformer`: Implementation for the local LLM
+     - `ChatService`: Service for handling chat message processing
+   - Context-aware responses using RAG (planned)
+   - Accountability features (planned)
 
 6. **Model Comparison Module**
    - Testing interface for different LLM models

@@ -32,7 +32,7 @@
                     <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700">
                         Diary
                     </a>
-                    <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700">
+                    <a href="{{ route('chat.index') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('chat.index') ? 'bg-indigo-900' : 'hover:bg-indigo-700' }}">
                         Chat
                     </a>
                     <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700">
