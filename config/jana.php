@@ -48,8 +48,8 @@ return [
         
         // OpenAI embedding settings
         'openai' => [
-            'model' => env('OPENAI_EMBEDDING_MODEL', 'text-embedding-ada-002'),
-            'dimension' => (int) env('OPENAI_EMBEDDING_DIMENSION', 1536),
+            'model' => env('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-large'),
+            'dimension' => (int) env('OPENAI_EMBEDDING_DIMENSION', 3072),
         ],
         
         // Similarity search settings

@@ -42,7 +42,7 @@ return [
         'model' => env('OPENAI_MODEL', 'gpt-3.5-turbo'),
         'max_tokens' => env('OPENAI_MAX_TOKENS', 500),
         'temperature' => env('OPENAI_TEMPERATURE', 0.7),
-        'embedding_model' => env('OPENAI_EMBEDDING_MODEL', 'text-embedding-ada-002'),
+        'embedding_model' => env('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-large'),
     ],
 
 ];
