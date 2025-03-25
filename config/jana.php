@@ -40,6 +40,24 @@ return [
         'system_message' => env('LLM_SYSTEM_MESSAGE', 'You are Jana, a helpful personal assistant for people with ADHD.'),
         'max_history' => (int) env('LLM_MAX_HISTORY', 10),
     ],
+    
+    // Embedding settings
+    'embedding' => [
+        // Which embedding provider to use (currently only 'openai' is supported)
+        'provider' => env('EMBEDDING_PROVIDER', 'openai'),
+        
+        // OpenAI embedding settings
+        'openai' => [
+            'model' => env('OPENAI_EMBEDDING_MODEL', 'text-embedding-ada-002'),
+            'dimension' => (int) env('OPENAI_EMBEDDING_DIMENSION', 1536),
+        ],
+        
+        // Similarity search settings
+        'similarity' => [
+            'min_score' => (float) env('EMBEDDING_MIN_SIMILARITY', 0.7),
+            'max_results' => (int) env('EMBEDDING_MAX_RESULTS', 5),
+        ],
+    ],
 
     // Logging settings
     'logging' => [
