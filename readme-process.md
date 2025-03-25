@@ -66,10 +66,28 @@ This document tracks the implementation steps and changes made to the applicatio
   - Updated routes and navigation to include embedding tool
   - Added support for text similarity comparison
 
+## Updates (March 25, 2025 - Evening)
+- Implemented comprehensive PHPUnit tests for embedding functionality:
+  - Created `EmbeddingServiceTest` to test the embedding service
+  - Implemented `OpenAiEmbeddingTransformerTest` to test the OpenAI transformer
+  - Added tests for generating embeddings, calculating similarity, and finding similar embeddings
+  - Ensured proper mocking of dependencies for isolated unit testing
+  - Verified that all tests pass with the new `text-embedding-3-large` model
+  - Confirmed embedding dimension increased from 1536 to 3072 with the new model
+  - Validated that similarity calculations work correctly for various text pairs
+
+## Updates (March 25, 2025 - Late Evening)
+- Implemented PostgreSQL with pgvector extension for vector database functionality:
+  - Created database migration for embeddings table with vector(3072) column
+  - Implemented Embedding model with methods for vector operations
+  - Developed EmbeddingStorageService for storing and retrieving embeddings
+  - Configured cosine similarity (`<=>` operator) for semantic search
+  - Created comprehensive unit tests for the embedding functionality
+  - Verified that vector storage and similarity search work correctly
+  - Updated architecture documentation with vector database details
+  - Used a simplified approach without repository pattern for clarity
+
 ## Next Steps
-- Set up PostgreSQL with pgvector extension
-- Create database migrations for chat embeddings
-- Implement storage and retrieval of embeddings
 - Create database migrations for other core entities
 - Implement basic project management functionality
 - Implement task management functionality

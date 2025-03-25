@@ -26,6 +26,34 @@ The application is designed as a personal assistant and coach to help users with
   - Livewire for complex dynamic interfaces (chat, model comparison)
 - **Styling**: Tailwind CSS
 
+## Design Decisions
+
+### Frontend Approach
+- **Plain Blade Templates**: Using standard Blade templates without complex JavaScript frameworks for initial development to ensure simplicity and maintainability.
+- **Progressive Enhancement**: Starting with basic functionality and adding interactivity only where needed, rather than building a full SPA from the start.
+- **Feature-First Development**: Implementing each feature completely with a simple approach before adding complexity or optimizations.
+
+### Backend Architecture
+- **No Repository Pattern**: Deliberately avoiding the repository pattern to keep the codebase simpler and more approachable. Using direct model methods and service classes instead.
+- **Service-Based Design**: Organizing functionality into focused service classes with clear responsibilities rather than complex abstraction layers.
+- **Dependency Injection**: Using Laravel's service container for dependency management rather than static facades where possible.
+
+### Vector Database Implementation
+- **Cosine Similarity for Semantic Search**: Using cosine similarity (`<=>` operator) instead of L2 distance (`<->` operator) for embedding comparisons because:
+  - Cosine similarity is better suited for NLP tasks as it measures the angle between vectors, not their absolute distance.
+  - It's less affected by vector magnitude, making it more reliable for comparing text semantics.
+  - Performance is comparable to L2 distance for our use case.
+
+- **OpenAI Embedding Model**: Using the `text-embedding-3-large` model which produces 3072-dimension vectors, providing high-quality semantic representations.
+
+- **PostgreSQL with pgvector**: Using PostgreSQL's pgvector extension rather than a dedicated vector database for simplicity and to avoid additional infrastructure requirements.
+
+- **Dimension Handling**: The high dimensionality (3072) of OpenAI's embeddings presents challenges for indexing, so we're using:
+  - Direct cosine similarity searches without complex indexing initially
+  - Configurable dimension size to allow for future optimizations
+
+- **Embedding Storage**: Storing full embedding vectors in the database rather than using dimensionality reduction techniques to maintain full semantic fidelity.
+
 ## Component Architecture
 
 ### Core Components
@@ -70,10 +98,12 @@ The application is designed as a personal assistant and coach to help users with
    - Performance metrics and comparison
    - Response storage and management
 
-7. **Chat Embeddings Module**
-   - Embedding generation and storage for chat messages only
-   - Retrieval for context enhancement in conversations
-   - Integration with PostgreSQL using pgvector
+7. **Vector Database Module**
+   - Embedding generation and storage using PostgreSQL with pgvector extension
+   - Cosine similarity search for semantic retrieval of relevant content
+   - Integration with OpenAI's text-embedding-3-large model
+   - Simple, direct model approach without repository pattern for clarity
+   - Configurable dimension size (default: 3072 for text-embedding-3-large)
 
 ## Data Flow
 
@@ -197,7 +227,74 @@ LLM_PROVIDER=openai
 
 ### LLM Logging Architecture
 
-The application includes a dedicated logging system for LLM interactions to track requests and responses. This will later be extended to store in a vector database for embeddings.
+The application includes a dedicated logging system for LLM interactions to track requests and responses. This is integrated with the vector database for embeddings.
+
+### Vector Database Architecture
+
+The application implements a vector database using PostgreSQL with the pgvector extension to store and retrieve embeddings for semantic search capabilities.
+
+**Components:**
+
+1. **Embedding Model**
+   - Represents stored embeddings in the database
+   - Handles vector operations and similarity searches
+   - Uses cosine similarity (`<=>` operator) for semantic search
+
+2. **EmbeddingService**
+   - Generates embeddings using the configured transformer
+   - Abstracts the embedding generation process
+
+3. **EmbeddingStorageService**
+   - Manages the storage and retrieval of embeddings
+   - Provides methods for finding similar content by text or vector
+
+4. **EmbeddingTransformerInterface**
+   - Interface for embedding generation implementations
+   - Defines methods for generating embeddings and getting model information
+
+**Database Schema:**
+
+```sql
+CREATE TABLE embeddings (
+    id SERIAL PRIMARY KEY,
+    content_type VARCHAR(255) NOT NULL,
+    content_id VARCHAR(255),
+    text TEXT NOT NULL,
+    model VARCHAR(255) NOT NULL,
+    dimension INTEGER NOT NULL,
+    embedding vector(3072),
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+CREATE INDEX embeddings_content_type_index ON embeddings (content_type);
+CREATE INDEX embeddings_content_type_content_id_index ON embeddings (content_type, content_id);
+```
+
+**Usage Example:**
+
+```php
+// Store an embedding
+$embeddingStorage->storeEmbedding(
+    'This is a sample text to embed',
+    'message',
+    '123'
+);
+
+// Find similar content
+$similarItems = $embeddingStorage->findSimilarByText(
+    'What was that sample text again?',
+    'message',
+    5
+);
+```
+
+**Implementation Notes:**
+
+- Uses cosine similarity for NLP-style semantic search
+- Direct model approach without repository pattern for simplicity
+- Configurable dimension size based on the embedding model used
+- Designed to work with OpenAI's text-embedding-3-large model (3072 dimensions)
 
 ### Embedding Architecture
 
