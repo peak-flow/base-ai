@@ -56,9 +56,21 @@ This document tracks the implementation steps and changes made to the applicatio
   - Added configuration options in `services.php` and `.env.example`
   - Implemented provider switching via the `LLM_PROVIDER` environment variable
 
+## Updates (March 25, 2025 - Afternoon)
+- Implemented embedding functionality with OpenAI integration:
+  - Created `EmbeddingTransformerInterface` for a pluggable architecture
+  - Implemented `OpenAiEmbeddingTransformer` for OpenAI embeddings API
+  - Developed `EmbeddingService` with vector similarity calculation
+  - Added embedding configuration to `services.php` and `jana.php`
+  - Created embedding test controller and view for validation
+  - Updated routes and navigation to include embedding tool
+  - Added support for text similarity comparison
+
 ## Next Steps
 - Set up PostgreSQL with pgvector extension
-- Create database migrations for core entities
+- Create database migrations for chat embeddings
+- Implement storage and retrieval of embeddings
+- Create database migrations for other core entities
 - Implement basic project management functionality
 - Implement task management functionality
 - Improve LLM logging format for better readability and analysis

@@ -199,6 +199,80 @@ LLM_PROVIDER=openai
 
 The application includes a dedicated logging system for LLM interactions to track requests and responses. This will later be extended to store in a vector database for embeddings.
 
+### Embedding Architecture
+
+The application implements a pluggable architecture for text embeddings, similar to the LLM integration. This allows for easy switching between different embedding providers while maintaining a consistent interface.
+
+**Components:**
+
+1. **EmbeddingTransformerInterface**
+   - Interface that all embedding implementations must implement
+   - Defines `generateEmbedding()`, `getName()`, and `getDimension()` methods
+
+2. **OpenAiEmbeddingTransformer**
+   - Implementation for OpenAI's embedding API
+   - Handles authentication and communication with OpenAI's embeddings endpoint
+   - Supports different embedding models with automatic dimension detection
+
+3. **EmbeddingService**
+   - High-level service for generating and working with embeddings
+   - Provides vector similarity calculation using cosine similarity
+   - Includes methods for finding similar embeddings from a collection
+
+4. **LlmClient** (shared with LLM architecture)
+   - Generic HTTP client for API communication
+   - Reused for embedding API requests
+
+5. **LlmServiceProvider**
+   - Registers and binds embedding services in the service container
+   - Configures the appropriate transformer based on settings
+
+**Configuration:**
+
+Embedding settings are configured in both `services.php` and `jana.php` configuration files:
+
+```php
+// In services.php
+'openai' => [
+    // ... other OpenAI settings
+    'embedding_model' => env('OPENAI_EMBEDDING_MODEL', 'text-embedding-ada-002'),
+],
+
+// In jana.php
+'embedding' => [
+    'provider' => env('EMBEDDING_PROVIDER', 'openai'),
+    'openai' => [
+        'model' => env('OPENAI_EMBEDDING_MODEL', 'text-embedding-ada-002'),
+        'dimension' => (int) env('OPENAI_EMBEDDING_DIMENSION', 1536),
+    ],
+    'similarity' => [
+        'min_score' => (float) env('EMBEDDING_MIN_SIMILARITY', 0.7),
+        'max_results' => (int) env('EMBEDDING_MAX_RESULTS', 5),
+    ],
+],
+```
+
+**Usage Example:**
+
+```php
+// Inject the EmbeddingService into your class
+public function __construct(EmbeddingService $embeddingService)
+{
+    $this->embeddingService = $embeddingService;
+}
+
+// Generate an embedding for a text
+$embedding = $this->embeddingService->generateEmbedding('This is some text to embed');
+
+// Calculate similarity between two embeddings
+$similarity = $this->embeddingService->calculateSimilarity($embedding1, $embedding2);
+
+// Find similar embeddings from a collection
+$similarItems = $this->embeddingService->findSimilarEmbeddings($queryEmbedding, $embeddings, 5);
+```
+
+The embedding architecture is designed to be extensible, allowing for additional embedding providers to be added in the future without changing the client code. The current implementation uses OpenAI's embedding API, but other providers can be easily integrated by implementing the `EmbeddingTransformerInterface`.
+
 **Components:**
 
 1. **LlmLogger Service**
