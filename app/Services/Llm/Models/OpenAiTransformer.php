@@ -105,7 +105,11 @@ class OpenAiTransformer implements LlmTransformerInterface
             $conversationId = $context['conversation_id'] ?? null;
             if (!$conversationId) {
                 $conversationId = (string) \Illuminate\Support\Str::uuid();
-                $data['conversation_id'] = $conversationId;
+            }
+            
+            // Remove conversation_id from data if it exists
+            if (isset($data['conversation_id'])) {
+                unset($data['conversation_id']);
             }
             
             // Add API key to headers from services.php config
