@@ -55,5 +55,6 @@ This document tracks the implementation steps and changes made to the applicatio
 - Create database migrations for core entities
 - Implement basic project management functionality
 - Implement task management functionality
+- Improve LLM logging format for better readability and analysis
 - Add authentication when needed
 - Consider adding streaming responses from the LLM in the future
