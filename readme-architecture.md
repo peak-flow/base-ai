@@ -50,11 +50,15 @@ The application is designed as a personal assistant and coach to help users with
    - Conversation management using session storage
    - Integration with local LLM via HTTP client
    - Standard form submissions for simplicity and reliability
+   - Chat completions API format with support for:
+     - System messages for persona definition
+     - Chat history context for coherent conversations
+     - Proper error handling and logging
    - Service-oriented architecture with the following components:
      - `LlmClient`: Handles HTTP communication with the local LLM API
      - `LlmTransformerInterface`: Interface for different LLM implementations
      - `LocalLlmTransformer`: Implementation for the local LLM
-     - `ChatService`: Service for handling chat message processing
+     - `ChatService`: Service for handling chat message processing and history management
    - Context-aware responses using RAG (planned)
    - Accountability features (planned)
 
@@ -82,6 +86,76 @@ The application is designed as a personal assistant and coach to help users with
    - User messages sent to local LLM API
    - Relevant context from vector database added to prompts
    - Responses processed and displayed to user
+   
+   **Example Request Format:**
+   ```php
+   // From LocalLlmTransformer.php
+   $data = [
+       'messages' => [
+           [
+               'role' => 'system',
+               'content' => 'You are Jana, a helpful personal assistant. Be concise, friendly, and provide accurate information.'
+           ],
+           [
+               'role' => 'user',
+               'content' => 'What is the weather today?'
+           ],
+           [
+               'role' => 'assistant',
+               'content' => 'I don\'t have access to real-time weather data. Would you like me to help you find a weather service?'
+           ],
+           [
+               'role' => 'user',
+               'content' => 'Yes, please recommend one.'
+           ]
+       ],
+       'max_tokens' => 500,
+       'temperature' => 0.7
+   ];
+   
+   // HTTP POST to: http://192.168.5.119:1234/v1/chat/completions
+   ```
+   
+   **Code Flow Example:**
+   ```
+   1. User submits message via form in chat/index.blade.php
+   2. Form submits to ChatController@sendMessage
+   3. ChatController gets existing messages from session
+   4. ChatController calls ChatService->sendMessage()
+   5. ChatService adds chat history from session to context
+   6. ChatService calls LocalLlmTransformer->sendMessage()
+   7. LocalLlmTransformer formats request with messages array
+   8. LocalLlmTransformer calls LlmClient->sendRequest()
+   9. LlmClient makes HTTP POST request to LLM API
+   10. Response is processed back through the chain
+   11. ChatController stores the new message in session
+   12. User is redirected back to chat view with updated messages
+   ```
+   
+   **Example Response Format:**
+   ```json
+   {
+       "id": "chatcmpl-123456789",
+       "object": "chat.completion",
+       "created": 1679351234,
+       "model": "local-model",
+       "choices": [
+           {
+               "index": 0,
+               "message": {
+                   "role": "assistant",
+                   "content": "I recommend checking Weather.gov for accurate weather forecasts in the US. Other good options include AccuWeather, The Weather Channel, or Dark Sky. Most smartphones also have built-in weather apps that provide reliable forecasts."
+               },
+               "finish_reason": "stop"
+           }
+       ],
+       "usage": {
+           "prompt_tokens": 124,
+           "completion_tokens": 57,
+           "total_tokens": 181
+       }
+   }
+   ```
 
 4. **RAG Implementation**
    - Chat messages converted to embeddings
